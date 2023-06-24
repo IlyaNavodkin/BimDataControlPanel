@@ -1,0 +1,119 @@
+﻿@model BimDataControlPanel.WEB.ViewModels.Project.ProjectChangesViewModel
+
+@{
+    ViewBag.Title = "Последние изменения";
+    Layout = "_Layout";
+}
+
+<h3>Изменения</h3>
+<br/>
+
+<h2>Информация о проекте</h2>
+<table class="table">
+    <tr>
+        <td>Имя проекта:</td><td>Версия Revit:</td>
+    </tr>
+
+    <tr>
+        <td>@Model.Project.Name</td>
+        <td>@Model.Project.RevitVersion</td>
+    </tr>
+    
+</table>
+
+<h2>Поиск по имени пользователя</h2>
+
+<div class="col-5">
+    <partial name="_SearchBox" model="@Model.SearchString" />
+</div>
+
+<h2>Изменения в проекте</h2>
+<table class="table">
+    <colgroup>
+        <col class="col-1">
+        <col class="col-3">
+        <col class="col-3">
+        <col class="col-3">
+        <col class="col-3">
+        <col class="col-1">
+    </colgroup>
+    <tr>
+        <th ></th>
+        <th >
+            <a asp-action="Index" class="@(Model.SortBy == "ChangeTime" ? "nav-link active" : "nav-link")" asp-route-id="@Model.Project.Id" asp-route-page="1" 
+               asp-route-sortBy="ChangeTime" asp-route-sortOrder="@GetSortOrder("ChangeTime")">
+                Время
+            </a>
+        </th>
+        <th >
+            <a asp-action="Index" class="@(Model.SortBy == "ChangeType" ? "nav-link active" : "nav-link")" asp-route-id="@Model.Project.Id" asp-route-page="1" 
+               asp-route-sortBy="ChangeType" asp-route-sortOrder="@GetSortOrder("ChangeType")">
+                Тип изменения
+            </a>
+        </th>
+        <th >
+            <a asp-action="Index" class="@(Model.SortBy == "UserRevitName" ? "nav-link active" : "nav-link")" asp-route-id="@Model.Project.Id" asp-route-page="1" 
+               asp-route-sortBy="UserRevitName" asp-route-sortOrder="@GetSortOrder("UserRevitName")">
+                Имя юзера
+            </a>
+        </th>
+        <th colspan="2">
+            <a asp-action="Index" class="@(Model.SortBy == "Description" ? "nav-link active" : "nav-link")" asp-route-id="@Model.Project.Id" asp-route-page="1" 
+               asp-route-sortBy="Description" asp-route-sortOrder="@GetSortOrder("Description")">
+                Описание
+            </a>
+        </th>    
+    </tr>
+
+
+    @foreach (var projectChanges in Model.Changes)
+    {
+        <tr>
+            <td>
+                <a asp-action="Edit" asp-route-id="@projectChanges.Id">
+                    <i class="fa-solid fa-pen-to-square"></i>
+                </a>
+            </td>
+            <td>@projectChanges.ChangeTime</td>
+            <td>@projectChanges.ChangeType</td>
+            <td>@projectChanges.UserRevitName</td>
+            <td>@projectChanges.Description</td>
+            <td>
+                <form asp-action="Delete" asp-route-id="@projectChanges.Id" asp-route-projId="@projectChanges.ProjectId"
+                      method="post">
+                    <button class="btn btn-sm btn-danger" type="submit">
+                        <i class="far fa-trash-can"></i>
+                    </button>
+                </form>
+            </td>
+        </tr>
+    }
+    <tr>
+        <td colspan="12" class="text-center">
+            <a class="btn btn-sm btn-success col-1" asp-controller="Changes" asp-action="Create"
+               asp-route-projectId="@Model.Project.Id">
+                <i class="fa-solid fa-circle-plus"></i>
+            </a>
+        </td>
+    </tr>
+    
+
+</table>
+
+<div class="d-flex justify-content-center py-3">
+    @{ await Html.RenderPartialAsync("_Pagination", Model.PageInfo); }
+</div>
+<a class="btn btn-danger" asp-controller="Project" asp-action="Index" 
+   asp-route-projectId="@Model.Project.Id">К проектам</a>
+   
+   
+@functions {
+    string GetSortOrder(string sortBy)
+    {
+        if (Model.SortBy == sortBy)
+        {
+            return Model.SortOrder == "asc" ? "desc" : "asc";
+        }
+        return "asc";
+    }
+}

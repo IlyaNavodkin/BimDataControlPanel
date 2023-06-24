@@ -1,0 +1,24 @@
+﻿@model BimDataControlPanel.BLL.Dtos.Project.CreateProjectDto
+
+@{
+    ViewBag.Title = "Создать проект";
+    Layout = "_Layout";
+}
+
+<h2>Создать проект</h2>
+
+<form asp-action="Create" asp-controller="Project" method="post">
+    <input type="hidden" asp-for="Complete" value="false" class="form-control"/>
+    <div class="form-group">
+        <label asp-for="Name" class="control-label">Имя проекта</label>
+        <input type="text" asp-for="Name" class="form-control"/>
+        <span asp-validation-for="Name" class="text-danger"></span>
+    </div>
+    <div class="form-group">
+        <label asp-for="RevitVersion" class="control-label">Версия проекта</label>
+        <input type="text" asp-for="RevitVersion" class="form-control"/>
+        <span asp-validation-for="RevitVersion" class="text-danger"></span>
+    </div>
+    <button type="submit" class="btn btn-primary">Добавить проект</button>
+</form>
+<a class="btn btn-danger" asp-controller="Project" asp-action="Index">Назад</a>

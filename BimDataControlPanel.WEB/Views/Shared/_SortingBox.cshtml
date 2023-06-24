@@ -1,0 +1,15 @@
+﻿@model string
+
+<form asp-action="Index" asp-controller="@ViewContext.RouteData.Values["controller"].ToString()" method="get">
+    <div class="input-group mb-3">
+        <select class="form-control" name="sortOption">
+            <option value="changeTime">Время изменения</option>
+            <option value="changeType">Тип изменения</option>
+            <option value="userRevitName">Имя пользователя</option>
+            <option value="description">Описание</option>
+        </select>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">Сортировать</button>
+        </div>
+    </div>
+</form>

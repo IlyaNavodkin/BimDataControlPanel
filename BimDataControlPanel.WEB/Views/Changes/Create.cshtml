@@ -1,0 +1,42 @@
+﻿@model BimDataControlPanel.BLL.Dtos.Change.CreateChangeDto
+
+@{
+    ViewBag.Title = "Создать изменение";
+    Layout = "_Layout";
+}
+
+<h2>Создать изменение</h2>
+
+<form asp-action="Create" asp-controller="Changes" method="post">
+    @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+    <div class="form-group">
+        <input type="hidden" asp-for="ProjectId" class="form-control"/>
+    </div>
+    <div class="form-group">
+        <label asp-for="Description" class="control-label">Описание изменения</label>
+        <input type="text" asp-for="Description" class="form-control"/>
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="UserRevitName" class="control-label">Ник в ревите</label>
+        <input type="text" asp-for="UserRevitName" class="form-control"/>
+        <span asp-validation-for="UserRevitName" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ChangeType" class="control-label">Тип изменения</label>
+        <input type="text" asp-for="ChangeType" class="form-control"/>
+        <span asp-validation-for="ChangeType" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="ChangeTime" class="control-label">Время изменения</label>
+        <input type="datetime-local" asp-for="ChangeTime" class="form-control"/>
+        <span asp-validation-for="ChangeTime" class="text-danger"></span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Добавить проект</button>
+</form>
+
+<a class="btn btn-danger" asp-controller="Changes" asp-action="Index" asp-route-id="@Model.ProjectId">Назад</a>

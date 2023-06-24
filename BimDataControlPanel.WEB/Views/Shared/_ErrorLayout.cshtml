@@ -1,0 +1,18 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using BimDataControlPanel.DAL.Entities
+@inject UserManager<BimDataUser> UserManager
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome-free-6.4.0-web/css/all.min.css" />
+    <title>BIMDATA контрольная панель - @ViewBag.Title</title>
+</head>
+<body>
+    @RenderBody()
+</body>
+</html>

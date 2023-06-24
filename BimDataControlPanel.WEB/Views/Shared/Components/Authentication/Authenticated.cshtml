@@ -1,0 +1,25 @@
+﻿@model bool
+
+<h2>Панель управления</h2>
+<h3>Имя пользователя</h3>
+<p>@ViewBag.UserName</p>
+<h3>Активные роли</h3>
+@foreach (var role in ViewBag.Roles)
+{
+    <p>@role</p>
+}
+
+@if (Model)
+{
+    <div class="button-container">
+        <a class="btn btn-sm btn-primary col-12 mb-2" asp-controller="Users" asp-action="Index">Пользователи</a>
+        <a class="btn btn-sm btn-primary col-12 mb-2" asp-controller="Roles" asp-action="Index">Роли</a>
+        <a class="btn btn-sm btn-primary col-12 mb-2" asp-controller="Project" asp-action="Index">Проект</a>
+    </div>
+}
+ 
+<form asp-action="Logout" asp-controller="Account" method="post">
+    <button type="submit" class="btn btn-sm btn-danger col-12">Выход</button>
+</form>
+
+

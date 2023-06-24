@@ -1,0 +1,44 @@
+﻿@using Microsoft.AspNetCore.Identity
+@using BimDataControlPanel.DAL.Entities
+@inject UserManager<BimDataUser> UserManager
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <link href="~/css/style.css" rel="stylesheet">
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/lib/fontawesome-free-6.4.0-web/css/all.min.css" />
+    <title>BIMDATA контрольная панель - @ViewBag.Title</title>
+</head>
+<body>
+    <div id="header">
+        <h1>BIMDATA контрольная панель</h1>
+            <div id="nav">
+                <ul>
+                    <i class="fa fa-tractor"></i>
+                    <i class="fa fa-trash"></i>
+                    <i class="far fa-trash-can"></i>
+                    <i class="fa-solid fa-pen-to-square"></i>
+                    <i class="fa-solid fa-spell-check"></i>
+                    <i class="fa-solid fa-circle-plus"></i>
+                    <i class="fa-solid fa-angles-left"></i>
+                    <li><a asp-action="Index" asp-controller="Home">О проекте</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="wrapper">
+            <div id="sidebar1" class="aside">
+                @await Component.InvokeAsync("Authentication")
+            </div>
+
+            <div id="article">
+                @RenderBody()
+            </div>
+        </div>
+    <div id="footer">
+        <p>Контакты: ilya.sector.1@gmail.com</p>
+    </div>
+</body>
+</html>

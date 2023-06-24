@@ -1,0 +1,12 @@
+﻿@model string
+
+<form method="get" asp-action="Index" asp-controller="@ViewContext.RouteData.Values["controller"].ToString()">
+    <input type="hidden" name="id" value="@ViewBag.ProjectId" />
+    
+    <div class="input-group mb-3">
+        <input type="text" class="form-control" placeholder="Поиск" name="searchString" value="@Model" asp-for="@Model"/>
+        <div class="input-group-append">
+            <button type="submit" class="btn btn-primary">Найти</button>
+        </div>
+    </div>
+</form>
