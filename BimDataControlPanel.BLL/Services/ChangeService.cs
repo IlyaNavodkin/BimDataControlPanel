@@ -26,22 +26,22 @@ namespace BimDataControlPanel.BLL.Services
             return entities;
         }
 
-        public IEnumerable<Change> GetAllByUser(BimDataUser user)
-        {
-            var entities = _dataContext.Changes
-                .Where(c => c.UserRevitName == user.RevitUserNickName2020 || 
-                            c.UserRevitName == user.RevitUserNickName2020);
+        // public IEnumerable<Change> GetAllByUser(BimDataUser user)
+        // {
+        //     var entities = _dataContext.Changes
+        //         .Where(c => c.UserRevitName == user.RevitUserNickName2020 || 
+        //                     c.UserRevitName == user.RevitUserNickName2020);
+        //
+        //     return entities;
+        // }
 
-            return entities;
-        }
-
-        public IEnumerable<Change> GetAllByProject(Project project)
-        {
-            var entities = _dataContext.Changes
-                .Where(c => c.ProjectId == project.Id || c.UserRevitName == project.Id);
-
-            return entities;
-        }
+        // public IEnumerable<Change> GetAllByProject(Project project)
+        // {
+        //     var entities = _dataContext.Changes
+        //         .Where(c => c.ProjectId == project.Id || c.UserRevitName == project.Id);
+        //
+        //     return entities;
+        // }
 
         public async Task<Change?> GetById(string? id)
         {
@@ -79,7 +79,7 @@ namespace BimDataControlPanel.BLL.Services
             _dataContext.SaveChanges();
         }
 
-        public async Task Create(CreateChangeDto model)
+        public async Task<string> Create(CreateChangeDto model)
         {
             var change = new Change
             {
@@ -87,7 +87,7 @@ namespace BimDataControlPanel.BLL.Services
                 Description = model.Description,
                 ChangeType = model.ChangeType,
                 ChangeTime = model.ChangeTime,
-                UserRevitName = model.UserRevitName,
+                RevitUserInfoId = model.RevitUserInfoId,
                 ProjectId = model.ProjectId,
             };
             
@@ -99,6 +99,8 @@ namespace BimDataControlPanel.BLL.Services
             
             await _dataContext.Changes.AddAsync(change);
             Save();
+
+            return change.Id;
         }
         
         public async Task Edit(ChangeDto dto)
@@ -107,7 +109,6 @@ namespace BimDataControlPanel.BLL.Services
 
             change.ChangeTime = dto.ChangeTime;
             change.Description = dto.Description;
-            change.UserRevitName = dto.UserRevitName;
             change.ChangeType = dto.ChangeType;
             
             var validationResult = await _validator.ValidateAsync(change);
@@ -136,7 +137,6 @@ namespace BimDataControlPanel.BLL.Services
 
             var dto = new ChangeDto
             {
-                UserRevitName = change.UserRevitName,
                 Description = change.Description,
                 ChangeTime = change.ChangeTime,
                 ChangeType = change.ChangeType,

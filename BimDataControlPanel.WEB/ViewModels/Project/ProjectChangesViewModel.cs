@@ -7,7 +7,7 @@ namespace BimDataControlPanel.WEB.ViewModels.Project;
 public class ProjectChangesViewModel
 {
     public ProjectDto? Project { get; set; }
-    public List<Change>? Changes { get; set; }
+    public List<DAL.Entities.Change>? Changes { get; set; }
     public PageInfo? PageInfo { get; set; }
     public string? SearchString { get; set; }
     public string? SortBy { get; set; }

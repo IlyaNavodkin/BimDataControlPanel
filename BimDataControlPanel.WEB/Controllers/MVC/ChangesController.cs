@@ -4,10 +4,12 @@ using BimDataControlPanel.BLL.Services;
 using BimDataControlPanel.DAL.Entities;
 using BimDataControlPanel.DAL.Exeptions;
 using BimDataControlPanel.WEB.Constants;
+using BimDataControlPanel.WEB.ViewModels.Change;
 using BimDataControlPanel.WEB.ViewModels.Pagination;
 using BimDataControlPanel.WEB.ViewModels.Project;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace BimDataControlPanel.WEB.Controllers.MVC
 {
@@ -17,12 +19,14 @@ namespace BimDataControlPanel.WEB.Controllers.MVC
     {
         private readonly ProjectService _projectService;
         private readonly ChangeService _changeService;
+        private readonly RevitUserInfoService _revitUserInfoService;
 
         public ChangesController(ProjectService projectService, 
-            ChangeService changeService)
+            ChangeService changeService, RevitUserInfoService revitUserInfoService)
         {
             _projectService = projectService;
             _changeService = changeService;
+            _revitUserInfoService = revitUserInfoService;
         }
 
         [HttpGet]
@@ -32,11 +36,12 @@ namespace BimDataControlPanel.WEB.Controllers.MVC
             var activeProject = await _projectService.GetByIdIncludeChanges(id);
             var changesQuery = activeProject.Changes.AsQueryable();
             
-            changesQuery = SearchEntityBy(searchString, changesQuery);
+            // changesQuery = SearchEntityBy(searchString, changesQuery);
             changesQuery = SortingEntityBy(sortBy, sortOrder, changesQuery); 
             
             int pageSize = 2;
-            var changes = changesQuery.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+            var changes = changesQuery.Skip((page - 1) * pageSize).Take(pageSize)
+                .Include(p => p.RevitUserInfo).ToList();
             var pageInfo = new PageInfo { PageNumber=page, PageSize=pageSize, TotalItems=changesQuery.ToList().Count};
 
             var viewModel = new ProjectChangesViewModel
@@ -59,15 +64,15 @@ namespace BimDataControlPanel.WEB.Controllers.MVC
             return View(viewModel);
         }
 
-        private IQueryable<Change> SearchEntityBy(string searchString, IQueryable<Change> changesQuery)
-        {
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                changesQuery = changesQuery.Where(c => c.UserRevitName.Contains(searchString));
-            }
-
-            return changesQuery;
-        }
+        // private IQueryable<Change> SearchEntityBy(string searchString, IQueryable<Change> changesQuery)
+        // {
+        //     if (!string.IsNullOrEmpty(searchString))
+        //     {
+        //         changesQuery = changesQuery.Where(c => c.UserRevitName.Contains(searchString));
+        //     }
+        //
+        //     return changesQuery;
+        // }
 
         private IQueryable<Change> SortingEntityBy(string sortBy, string sortOrder, IQueryable<Change> changesQuery)
         {
@@ -83,11 +88,11 @@ namespace BimDataControlPanel.WEB.Controllers.MVC
                         ? changesQuery.OrderBy(c => c.ChangeType)
                         : changesQuery.OrderByDescending(c => c.ChangeType);
                     break;
-                case "UserRevitName":
-                    changesQuery = sortOrder == "asc"
-                        ? changesQuery.OrderBy(c => c.UserRevitName)
-                        : changesQuery.OrderByDescending(c => c.UserRevitName);
-                    break;
+                // case "UserRevitName":
+                //     changesQuery = sortOrder == "asc"
+                //         ? changesQuery.OrderBy(c => c.UserRevitName)
+                //         : changesQuery.OrderByDescending(c => c.UserRevitName);
+                //     break;
                 case "Description":
                     changesQuery = sortOrder == "asc"
                         ? changesQuery.OrderBy(c => c.Description)
@@ -103,20 +108,25 @@ namespace BimDataControlPanel.WEB.Controllers.MVC
 
 
         [HttpGet]
-        public IActionResult Create(string projectId)
+        public async Task<IActionResult> Create(string projectId)
         {
             var dto = _changeService.GetCreateDto(projectId);
-            
-            return View(dto);
+            var userInfos = await _revitUserInfoService.GetAll();
+            var viewModel = new CreateChangeViewModel
+            {
+                ChangeDto = dto,
+                RevitUserInfos = userInfos,
+            };
+            return View(viewModel);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Create(CreateChangeDto model)
+        public async Task<IActionResult> Create(CreateChangeViewModel model)
         {
             ModelState.Clear();
-            await _changeService.Create(model);
+            await _changeService.Create(model.ChangeDto);
         
-            return RedirectToAction("Index", new { id = model.ProjectId });
+            return RedirectToAction("Index", new { id = ViewBag.ProjectId });
             
         }
         
@@ -125,8 +135,15 @@ namespace BimDataControlPanel.WEB.Controllers.MVC
         {
             ModelState.Clear();
             var dto = await _changeService.GetChangeDto(id);
+            var userInfos = await _revitUserInfoService.GetAll();
+
+            var viewModel = new EditChangeViewModel
+            {
+                ChangeDto = dto,
+                RevitUserInfos = userInfos
+            };
             
-            return View(dto);
+            return View(viewModel);
         }
 
         [HttpPost]

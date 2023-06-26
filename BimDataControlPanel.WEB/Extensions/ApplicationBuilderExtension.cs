@@ -1,4 +1,7 @@
-﻿using BimDataControlPanel.BLL.Services;
+﻿using BimDataControlPanel.BLL.Dtos.Change;
+using BimDataControlPanel.BLL.Dtos.Project;
+using BimDataControlPanel.BLL.Dtos.RevitUserInfo;
+using BimDataControlPanel.BLL.Services;
 using BimDataControlPanel.DAL.DbContexts;
 using BimDataControlPanel.DAL.Entities;
 using BimDataControlPanel.DAL.Extensions;
@@ -67,108 +70,107 @@ public static class ApplicationBuilderExtension
     }    
     public static async void DataEnsurePopulated(this IApplicationBuilder app)
     {
-        var userManager = app.ApplicationServices.GetRequiredService<UserManager<BimDataUser>>();
-        var roleManager = app.ApplicationServices.GetRequiredService<RoleManager<IdentityRole>>();
+        var projectService = app.ApplicationServices.GetRequiredService<ProjectService>();
+        var changeService = app.ApplicationServices.GetRequiredService<ChangeService>();
+        var revitUserInfoService = app.ApplicationServices.GetRequiredService<RevitUserInfoService>();
+
         var context = app.ApplicationServices.GetRequiredService<AppDbContext>();
-        var logger = app.ApplicationServices.GetRequiredService<ILogger<IApplicationBuilder>>();
-        
-        var user = await userManager.FindByNameAsync(UsersConstants.AdminName);
-        var user1 = await userManager.FindByNameAsync(UsersConstants.User1Name);
-        var user2 = await userManager.FindByNameAsync(UsersConstants.User2Name);
-        
-        if (context.Projects.ToList().Count == 0)
+
+        var projectCount = context.Projects.ToArray().Length;
+        if (projectCount == 0)
         {
-            var project1 = new Project
+            var userInfo1Dto = new CreateRevitUserInfoDto
             {
-                Id = Guid.NewGuid().ToString(),
+                Name = "User 1",
+                LastConnection = DateTime.Now,
+                NameUserOs = "User1",
+                RevitVersion = "2020",
+                DsToolsVersion = "1.0",
+            };
+            
+            var userInfo2Dto = new CreateRevitUserInfoDto
+            {
+                Name = "User 2",
+                LastConnection = DateTime.Now,
+                NameUserOs = "User2",
+                RevitVersion = "2022",
+                DsToolsVersion = "2.0",
+            };
+            
+            var userInfo1Id = await revitUserInfoService.Create(userInfo1Dto);
+            var userInfo2Id = await revitUserInfoService.Create(userInfo2Dto);
+            
+            var userInfo1 = await revitUserInfoService.GetById(userInfo1Id);
+            var userInfo2 = await revitUserInfoService.GetById(userInfo2Id);
+            
+            var project1Dto = new CreateProjectDto
+            {
                 Name = "Project 1",
                 RevitVersion = "2022",
-                CreationTime = DateTime.Now,
-                Complete = false
+                Complete = false,
             };
-            context.Projects.Add(project1);
 
-            var project2 = new Project
+            var project2Dto = new CreateProjectDto
             {
-                Id = Guid.NewGuid().ToString(),
                 Name = "Project 2",
                 RevitVersion = "2020",
-                CreationTime = DateTime.Now,
                 Complete = true
             };
-            context.Projects.Add(project2);
-
-            var change1 = new Change
+            
+            var project1Id = await projectService.Create(project1Dto);
+            var project2Id = await projectService.Create(project2Dto);
+            
+            var project1 = await projectService.GetById(project1Id);
+            var project2 = await projectService.GetById(project2Id);
+            
+            project1.RevitUserInfos.Add(userInfo1);
+            project1.RevitUserInfos.Add(userInfo2);
+            project2.RevitUserInfos.Add(userInfo2);
+            
+            var change1Dto = new CreateChangeDto()
             {
-                Id = Guid.NewGuid().ToString(),
-                UserRevitName = user.RevitUserNickName2022,
                 ChangeTime = DateTime.Now,
                 Description = "Change 1",
                 ChangeType = "Type 1",
-                ProjectId = project1.Id
+                ProjectId = project1Id,
+                RevitUserInfoId = userInfo1Id
             };
-            context.Changes.Add(change1);
-
-            var change2 = new Change
+            
+            var change2Dto = new CreateChangeDto
             {
-                Id = Guid.NewGuid().ToString(),
-                UserRevitName = user.RevitUserNickName2020,
                 ChangeTime = DateTime.Now,
                 Description = "Change walls",
                 ChangeType = "Add",
-                ProjectId = project2.Id
+                ProjectId = project2Id,
+                RevitUserInfoId = userInfo1Id
             };
-            context.Changes.Add(change2);
-
-            var change3 = new Change
+            
+            var change3Dto = new CreateChangeDto
             {
-                Id = Guid.NewGuid().ToString(),
-                UserRevitName = user1.RevitUserNickName2020,
                 ChangeTime = DateTime.Now,
                 Description = "Change ducts",
                 ChangeType = "Add",
-                ProjectId = project2.Id
+                ProjectId = project2Id,
+                RevitUserInfoId = userInfo2Id
             };
-            context.Changes.Add(change3);
-
-            var change4 = new Change
+            
+            var change4Dto = new CreateChangeDto
             {
-                Id = Guid.NewGuid().ToString(),
-                UserRevitName = user2.RevitUserNickName2020,
                 ChangeTime = DateTime.Now,
-                Description = "Change blaks",
+                Description = "Change blanks",
                 ChangeType = "Add",
-                ProjectId = project2.Id
+                ProjectId = project2Id,
+                RevitUserInfoId = userInfo2Id
             };
-            context.Changes.Add(change4);
-
-            var projectUser1 = new ProjectUser
-            {
-                ProjectId = project1.Id,
-                IdentityUserId = user.Id
-            };
-            context.ProjectUsers.Add(projectUser1);
-
-            var projectUser2 = new ProjectUser
-            {
-                ProjectId = project2.Id,
-                IdentityUserId = user.Id
-            };
-            context.ProjectUsers.Add(projectUser2);
             
-            var projectUser3 = new ProjectUser
-            {
-                ProjectId = project2.Id,
-                IdentityUserId = user1.Id
-            };
-            context.ProjectUsers.Add(projectUser3);
-            
-            var projectUser4 = new ProjectUser
-            {
-                ProjectId = project2.Id,
-                IdentityUserId = user2.Id
-            };
-            context.ProjectUsers.Add(projectUser4);
+            var change1Id = await changeService.Create(change1Dto);
+            var change2Id = await changeService.Create(change2Dto);
+            var change3Id = await changeService.Create(change3Dto);
+            var change4Id = await changeService.Create(change4Dto);
+
+            var allProjects = await projectService.GetAll();
+            var allChanges = await changeService.GetAll();
+            var allInfos = await revitUserInfoService.GetAll();
             
             context.SaveChanges();
         }

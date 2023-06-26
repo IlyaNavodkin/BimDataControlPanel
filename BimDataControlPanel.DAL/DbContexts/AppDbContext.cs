@@ -10,15 +10,14 @@ public class AppDbContext : DbContext
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
 
     public DbSet<Project> Projects { get; set; }
+    public DbSet<RevitUserInfo> RevitUserInfos { get; set; }
     public DbSet<Change> Changes { get; set; }
-    public DbSet<ProjectUser> ProjectUsers { get; set; }
-
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.ApplyConfiguration(new ChangeConfiguration());
         modelBuilder.ApplyConfiguration(new ProjectConfiguration());
-        modelBuilder.ApplyConfiguration(new ProjectUserConfiguration());
+        modelBuilder.ApplyConfiguration(new RevitUserInfoConfiguration());
         base.OnModelCreating(modelBuilder);
     }
 }

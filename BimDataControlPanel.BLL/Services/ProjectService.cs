@@ -24,23 +24,26 @@ namespace BimDataControlPanel.BLL.Services
             return await _dataContext.Projects.ToListAsync();
         }
 
-        public async Task<IEnumerable<Project>> GetAllByUser(BimDataUser user)
+        public async Task<IEnumerable<Project>> GetAllByUser(RevitUserInfo user)
         {
-            var allProjects = await _dataContext.Projects.Include(p => p.ProjectUsers).ToListAsync();
-            var projects = allProjects.Where(PredicateProjectByUserId(user));
+            var allEntities = await _dataContext.Projects
+                .Include(p => p.RevitUserInfos)
+                .ToListAsync();
+            
+            var entity = allEntities.Where(PredicateProjectByUserId(user));
         
-            return projects;
+            return entity;
         }
 
-        private static Func<Project, bool> PredicateProjectByUserId(BimDataUser user)
+        private static Func<Project, bool> PredicateProjectByUserId(RevitUserInfo user)
         {
             return p =>
             {
-                var argProjectUsers = p.ProjectUsers;
+                var entities = p.RevitUserInfos;
 
-                foreach (var projectUser in argProjectUsers)
+                foreach (var projectUser in entities)
                 {
-                    if (projectUser.IdentityUserId == user.Id) return true;
+                    if (projectUser.Id == user.Id) return true;
                 }
 
                 return false;
@@ -49,27 +52,27 @@ namespace BimDataControlPanel.BLL.Services
     
         public async Task<Project> GetById(string? id)
         {
-            var project = await _dataContext.Projects.FindAsync(id);
+            var entity = await _dataContext.Projects.FindAsync(id);
         
-            if (project is null)
+            if (entity is null)
             {
                 throw new NotFoundEntityException($"{nameof(Project)}");
             }
 
-            return project;
+            return entity;
         }
         
         public async Task<ProjectDto> GetDtoById(string? id)
         {
-            var project = await GetById(id);
+            var entity = await GetById(id);
             
             var dto = new ProjectDto
             {
-                Id = project.Id,
-                RevitVersion = project.RevitVersion,
-                Name = project.Name,
-                CreationTime = project.CreationTime,
-                Complete = project.Complete
+                Id = entity.Id,
+                RevitVersion = entity.RevitVersion,
+                Name = entity.Name,
+                CreationTime = entity.CreationTime,
+                Complete = entity.Complete
             };
             
             return dto;
@@ -77,28 +80,28 @@ namespace BimDataControlPanel.BLL.Services
 
         public async Task<Project?> GetByIdIncludeChanges(string id)
         {
-            var project = await _dataContext.Projects
+            var entity = await _dataContext.Projects
                 .Include(p => p.Changes)
                 .FirstOrDefaultAsync(p => p.Id == id);
         
-            if (project is null)
+            if (entity is null)
             {
                 throw new NotFoundEntityException($"{nameof(Project)}");
             }
 
-            return project;
+            return entity;
         }
 
         public async Task<Project?> GetByName(string name)
         {
-            var project = await _dataContext.Projects.FirstOrDefaultAsync(p => p.Name == name);
+            var entity = await _dataContext.Projects.FirstOrDefaultAsync(p => p.Name == name);
         
-            if (project is null)
+            if (entity is null)
             {
                 throw new NotFoundEntityException($"{nameof(Project)}");
             }
             
-            return project;
+            return entity;
         }
         public void Update(Project changedItem)
         {
@@ -109,9 +112,9 @@ namespace BimDataControlPanel.BLL.Services
             _dataContext.SaveChanges();
         }
         
-        public async Task Create(CreateProjectDto model)
+        public async Task<string> Create(CreateProjectDto model)
         {
-            var projectNew = new Project
+            var entity = new Project
             {
                 Id = Guid.NewGuid().ToString(),
                 Name = model.Name,
@@ -120,49 +123,51 @@ namespace BimDataControlPanel.BLL.Services
                 RevitVersion = model.RevitVersion
             };
             
-            var validationResult = await _validator.ValidateAsync(projectNew);
+            var validationResult = await _validator.ValidateAsync(entity);
             if (!validationResult.IsValid)
             {
                 throw new ValidationException(validationResult.Errors);
             }
             
-            await _dataContext.Projects.AddAsync(projectNew);
+            await _dataContext.Projects.AddAsync(entity);
             Save();
+
+            return entity.Id;
         }
         
         public async Task Edit(EditProjectDto dto)
         {
-            var project = await GetById(dto.Id);
+            var entity = await GetById(dto.Id);
             
-            project.Name = dto.Name;
-            project.RevitVersion = dto.RevitVersion;
-            project.Complete = dto.Complete;
+            entity.Name = dto.Name;
+            entity.RevitVersion = dto.RevitVersion;
+            entity.Complete = dto.Complete;
             
-            var result = await _validator.ValidateAsync(project);
+            var result = await _validator.ValidateAsync(entity);
             if (!result.IsValid) throw new ValidationException(result.Errors);
              
-            Update(project);
+            Update(entity);
             Save();
         }
         
         public async Task Delete(string? id)
         {
-            var project = await GetById(id);
+            var entity = await GetById(id);
 
-            _dataContext.Remove(project);
+            _dataContext.Remove(entity);
             Save();
         }
         
         public async Task<EditProjectDto> GetEditDto(string? id)
         {
-            var project = await GetById(id);
+            var entity = await GetById(id);
 
             var editProjectDto = new EditProjectDto
             {
-                Name = project.Name,
-                RevitVersion = project.RevitVersion, 
-                Id = project.Id, 
-                Complete = project.Complete 
+                Name = entity.Name,
+                RevitVersion = entity.RevitVersion, 
+                Id = entity.Id, 
+                Complete = entity.Complete 
             };
             
             return editProjectDto;

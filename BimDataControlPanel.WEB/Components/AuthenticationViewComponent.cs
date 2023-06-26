@@ -26,6 +26,14 @@ public class AuthenticationViewComponent : ViewComponent
         }
 
         var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+        if (currentUser is null)
+        {
+            ViewBag.UserName = "null";
+            ViewBag.Roles = "null";
+            
+            return View("Authenticated", false);
+        }
+        
         var isAdmin = await _userManager.IsInRoleAsync(currentUser, RolesConstants.AdminRoleName);
         var roles = await _userManager.GetRolesAsync(currentUser);
         

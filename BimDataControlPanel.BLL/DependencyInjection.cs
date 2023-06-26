@@ -16,6 +16,7 @@ namespace BimDataControlPanel.BLL
         {
             services.AddTransient<ChangeService>();
             services.AddTransient<ProjectService>();
+            services.AddTransient<RevitUserInfoService>();
             
             return services;
         }

@@ -16,10 +16,7 @@ namespace BimDataControlPanel.DAL.Validators
 
             RuleFor(item => item.ChangeTime)
                 .NotEmpty().WithMessage("Введите время создания.");
-
-            RuleFor(item => item.UserRevitName)
-                .NotEmpty().WithMessage("Имя пользователя ревит должно быть заполнено.");
-
+            
             RuleFor(item => item.ProjectId)
                 .NotEmpty().WithMessage("ProjectId должен быть заполнен.");
 
@@ -33,12 +30,11 @@ namespace BimDataControlPanel.DAL.Validators
         private bool HaveUniqueChange(Change item)
         {
             var change = _context.Changes
-                .FirstOrDefault(p => p.Description == item.Description && 
-                                     p.UserRevitName == item.UserRevitName && p.UserRevitName == item.UserRevitName);
-
+                .FirstOrDefault(p => p.Description == item.Description && p.ChangeTime == item.ChangeTime );
+        
             if (change is null) return true;
             if (item.Id == change.Id) return true;
-
+        
             return false;
         }
     }

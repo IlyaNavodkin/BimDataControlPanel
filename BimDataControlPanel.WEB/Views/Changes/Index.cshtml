@@ -76,7 +76,7 @@
             </td>
             <td>@projectChanges.ChangeTime</td>
             <td>@projectChanges.ChangeType</td>
-            <td>@projectChanges.UserRevitName</td>
+            <td>@projectChanges.RevitUserInfo.Name</td>
             <td>@projectChanges.Description</td>
             <td>
                 <form asp-action="Delete" asp-route-id="@projectChanges.Id" asp-route-projId="@projectChanges.ProjectId"

@@ -29,7 +29,6 @@ namespace BimDataControlPanel.WEB.Controllers.API
                 Description = p.Description,
                 ChangeTime = p.ChangeTime,
                 ChangeType = p.ChangeType,
-                UserRevitName = p.UserRevitName,
                 ProjectId = p.ProjectId,
             });
             
@@ -46,7 +45,6 @@ namespace BimDataControlPanel.WEB.Controllers.API
                 Description = change.Description,
                 ChangeTime = change.ChangeTime,
                 ChangeType = change.ChangeType,
-                UserRevitName = change.UserRevitName,
                 ProjectId = change.ProjectId,
             };
 

@@ -22,6 +22,7 @@ namespace BimDataControlPanel.DAL
             services.AddTransient<IUserValidator<BimDataUser>, CustomUserValidator>();
             services.AddScoped<ChangeValidator>();
             services.AddScoped<ProjectValidator>();
+            services.AddScoped<RevitUserInfoValidator>();
 
             services.AddDbContext<AppIdentityDbContext>(options =>
                 options.UseSqlite(identityConnectionString, b => 

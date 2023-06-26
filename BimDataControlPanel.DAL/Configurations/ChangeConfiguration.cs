@@ -13,9 +13,6 @@ public class ChangeConfiguration : IEntityTypeConfiguration<Change>
         builder.Property(c => c.Id)
             .IsRequired();
 
-        builder.Property(c => c.UserRevitName)
-            .IsRequired();
-
         builder.Property(c => c.ChangeTime)
             .IsRequired();
 
@@ -28,6 +25,11 @@ public class ChangeConfiguration : IEntityTypeConfiguration<Change>
         builder.HasOne(c => c.Project)
             .WithMany(p => p.Changes)
             .HasForeignKey(c => c.ProjectId)
+            .OnDelete(DeleteBehavior.Restrict);
+        
+        builder.HasOne(c => c.RevitUserInfo)
+            .WithMany(p => p.Changes)
+            .HasForeignKey(c => c.RevitUserInfoId)
             .OnDelete(DeleteBehavior.Restrict);
     }
 }

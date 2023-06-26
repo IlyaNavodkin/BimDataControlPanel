@@ -1,4 +1,5 @@
-﻿@model BimDataControlPanel.BLL.Dtos.Change.ChangeDto
+﻿@using Microsoft.AspNetCore.Mvc.TagHelpers
+@model BimDataControlPanel.WEB.ViewModels.Change.EditChangeViewModel
 
 @{
     ViewBag.Title = "Изменить информацию об изменениях";
@@ -9,33 +10,38 @@
 
 <form asp-action="Edit" asp-controller="Changes" method="post">
     <div class="form-group">
-        <input type="hidden" asp-for="ProjectId"/>
+        <input type="hidden" asp-for="ChangeDto.ProjectId"/>
     </div>
     <div class="form-group">
-        <input type="hidden" asp-for="Id"/>
+        <input type="hidden" asp-for="ChangeDto.Id"/>
     </div>
     <div class="form-group">
-        <label asp-for="UserRevitName" class="control-panel">Ник нейм пользователя</label>
-        <input type="text" asp-for="UserRevitName" class="form-control"/>
-        <span asp-validation-for="UserRevitName" class="text-danger"></span>
+        <label asp-for="RevitUserInfos" class="control-panel">Ник нейм пользователя</label>
+        <select asp-for="RevitUserInfos" class="form-control">
+            @foreach (var userInfo in Model.RevitUserInfos)
+            {
+                <option value="@userInfo.Name">@userInfo.Name</option>
+            }
+        </select>        
+        <span asp-validation-for="RevitUserInfos" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="Description" class="control-panel">Описание</label>
-        <input type="text" asp-for="Description" class="form-control"/>
-        <span asp-validation-for="Description" class="text-danger"></span>
+        <label asp-for="ChangeDto.Description" class="control-panel">Описание</label>
+        <input type="text" asp-for="ChangeDto.Description" class="form-control"/>
+        <span asp-validation-for="ChangeDto.Description" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="ChangeTime" class="control-panel">Время </label>
-        <input type="datetime-local" asp-for="ChangeTime" class="form-control"/>
-        <span asp-validation-for="ChangeTime" class="text-danger"></span>
+        <label asp-for="ChangeDto.ChangeTime" class="control-panel">Время </label>
+        <input type="datetime-local" asp-for="ChangeDto.ChangeTime" class="form-control"/>
+        <span asp-validation-for="ChangeDto.ChangeTime" class="text-danger"></span>
     </div>
     <div class="form-group">
-        <label asp-for="ChangeType" class="control-panel">Тип изменения </label>
-        <input type="text" asp-for="ChangeType" class="form-control"/>
-        <span asp-validation-for="ChangeType" class="text-danger"></span>
+        <label asp-for="ChangeDto.ChangeType" class="control-panel">Тип изменения </label>
+        <input type="text" asp-for="ChangeDto.ChangeType" class="form-control"/>
+        <span asp-validation-for="ChangeDto.ChangeType" class="text-danger"></span>
     </div>
 
     <button type="submit" class="btn btn-primary">Сохранить</button>
 </form>
 
-<a class="btn btn-danger" asp-controller="Changes" asp-action="Index" asp-route-id="@Model.ProjectId">Назад</a>
+<a class="btn btn-danger" asp-controller="Changes" asp-action="Index" asp-route-id="@Model.ChangeDto.ProjectId">Назад</a>
